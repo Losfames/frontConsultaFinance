@@ -4,6 +4,8 @@ import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 
+// O React procura a div com id="root" no public/index.html.
+// Tudo que esta dentro do componente App aparece dentro dessa div.
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
@@ -11,7 +13,6 @@ root.render(
   </React.StrictMode>
 );
 
-// If you want to start measuring performance in your app, pass a function
-// to log results (for example: reportWebVitals(console.log))
-// or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
+// Por enquanto nao estamos medindo performance.
+// Mais tarde, voce pode passar console.log aqui para ver metricas no navegador.
 reportWebVitals();
