@@ -1,90 +1,98 @@
-import { mockProjects } from '../mocks/projects';
+// src/services/projectService.js
+import api from './api';
 
-// Simula GET /projects.
-export async function getProjects(ownerId) {
-  await fakeDelay(250);
+// 1. LISTAR PROJETOS (GET /Projetos)
+export async function getProjects() {
+    // O Axios busca os projetos e as despesas do usuário logado ao mesmo tempo
+    const [projetosResponse, despesasResponse] = await Promise.all([
+        api.get('/Projetos'),
+        api.get('/Despesas')
+    ]);
 
-  return mockProjects.filter((project) => project.ownerId === ownerId);
+    const projetosApi = projetosResponse.data;
+    const despesasApi = despesasResponse.data;
+
+    // Traduz o formato do C# para o formato em inglês que o React espera
+    return projetosApi.map((p) => {
+        // Agrupa as despesas correspondentes a cada projeto
+        const despesasDoProjeto = despesasApi.filter((d) => d.projetoId === p.id);
+
+        return {
+            id: p.id,
+            name: p.nome,
+            description: p.descricao,
+            budget: p.orcamentoTotal,
+            status: 'Em andamento',
+            ownerName: p.usuario ? p.usuario.nome : 'Usuário',
+            expenses: despesasDoProjeto.map((d) => ({
+                id: d.id,
+                description: d.descricao,
+                category: d.categoria,
+                amount: d.valorRealizado
+            }))
+        };
+    });
 }
 
-// Simula POST /projects.
+// 2. CRIAR PROJETO (POST /Projetos)
 export async function createProject(projectData, owner) {
-  await fakeDelay(250);
+    const payload = {
+        nome: projectData.name,
+        descricao: projectData.description,
+        orcamentoTotal: Number(projectData.budget),
+        dataInicio: new Date().toISOString(),
+        dataFim: new Date().toISOString()
+    };
 
-  const newProject = {
-    id: Date.now(),
-    ...projectData,
-    ownerId: owner.id,
-    ownerName: owner.name,
-    budget: Number(projectData.budget),
-    expenses: [],
-  };
+    const response = await api.post('/Projetos', payload);
+    const p = response.data;
 
-  mockProjects.push(newProject);
-  return newProject;
+    return {
+        id: p.id,
+        name: p.nome,
+        description: p.descricao,
+        budget: p.orcamentoTotal,
+        status: 'Em andamento',
+        ownerName: owner.name,
+        expenses: []
+    };
 }
 
-// Simula PUT /projects/{id}.
+// 3. EDITAR PROJETO (PUT /Projetos/{id})
 export async function updateProject(projectId, projectData) {
-  await fakeDelay(250);
+    const payload = {
+        id: projectId,
+        nome: projectData.name,
+        descricao: projectData.description,
+        orcamentoTotal: Number(projectData.budget),
+        dataInicio: new Date().toISOString(),
+        dataFim: new Date().toISOString()
+    };
 
-  const projectIndex = mockProjects.findIndex((project) => project.id === projectId);
+    await api.put(`/Projetos/${projectId}`, payload);
 
-  if (projectIndex === -1) {
-    throw new Error('Projeto nao encontrado.');
-  }
-
-  const updatedProject = {
-    ...mockProjects[projectIndex],
-    ...projectData,
-    budget: Number(projectData.budget),
-  };
-
-  mockProjects[projectIndex] = updatedProject;
-  return updatedProject;
+    const todosOsProjetos = await getProjects();
+    return todosOsProjetos.find((p) => p.id === projectId);
 }
 
-// Simula DELETE /projects/{id}.
+// 4. APAGAR PROJETO (DELETE /Projetos/{id})
 export async function deleteProject(projectId) {
-  await fakeDelay(250);
-
-  const projectIndex = mockProjects.findIndex((project) => project.id === projectId);
-
-  if (projectIndex === -1) {
-    throw new Error('Projeto nao encontrado.');
-  }
-
-  mockProjects.splice(projectIndex, 1);
+    await api.delete(`/Projetos/${projectId}`);
 }
 
-// Simula POST /projects/{id}/expenses.
-export async function addExpense(projectId, expenseData) {
-  await fakeDelay(250);
+// 5. ADICIONAR DESPESA (POST /Despesas)
+export async function addExpense(expenseData) {
+    const payload = {
+        projetoId: expenseData.projetoId, // Lendo do pacote completo!
+        descricao: expenseData.description,
+        categoria: expenseData.category,
+        valorRealizado: Number(expenseData.amount),
+        valorOrcado: 0,
+        data: new Date().toISOString()
+    };
 
-  const projectIndex = mockProjects.findIndex((project) => project.id === projectId);
+    await api.post('/Despesas', payload);
 
-  if (projectIndex === -1) {
-    throw new Error('Projeto nao encontrado.');
-  }
-
-  const newExpense = {
-    id: Date.now(),
-    description: expenseData.description,
-    category: expenseData.category,
-    amount: Number(expenseData.amount),
-  };
-
-  const updatedProject = {
-    ...mockProjects[projectIndex],
-    expenses: [...mockProjects[projectIndex].expenses, newExpense],
-  };
-
-  mockProjects[projectIndex] = updatedProject;
-  return updatedProject;
-}
-
-function fakeDelay(ms) {
-  return new Promise((resolve) => {
-    setTimeout(resolve, ms);
-  });
+    const todosOsProjetos = await getProjects();
+    return todosOsProjetos.find((p) => p.id === expenseData.projetoId);
 }

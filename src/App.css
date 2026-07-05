@@ -142,33 +142,76 @@ button:disabled {
 }
 
 .dashboard-layout {
-  /* Layout principal depois do login: menu lateral + conteudo. */
-  min-height: 100vh;
-  display: flex;
+    /* Layout principal depois do login: menu lateral + conteudo. */
+    min-height: 100vh;
+    display: flex;
 }
 
+/* --- CLASSE PRINCIPAL DA BARRA (Tava faltando!) --- */
 .sidebar {
-  width: 76px;
-  min-width: 76px;
-  overflow: hidden;
-  background: #111827;
-  border-right: 1px solid #1f2937;
-  padding: 20px 12px;
-  transition: width 0.2s ease, min-width 0.2s ease;
+    width: 80px;
+    min-width: 80px;
+    background: #0f172a;
+    border-right: 1px solid #1e293b;
+    padding: 24px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+    transition: width 0.2s ease, min-width 0.2s ease;
+    overflow: hidden;
 }
 
-.sidebar:hover {
-  width: 260px;
-  min-width: 260px;
+/* --- ADICIONE ESTAS NOVAS CLASSES PARA O BOTÃO --- */
+.sidebar-toggle-container {
+    display: flex;
+    justify-content: flex-start;
+    margin-bottom: 20px;
+    height: 32px;
 }
 
-.sidebar-brand {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 28px;
-  min-height: 44px;
+.toggle-sidebar-btn {
+    background: transparent !important;
+    color: #cbd5e1;
+    border: none;
+    min-height: auto;
+    padding: 6px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    display: grid;
+    place-items: center;
+    font-size: 18px;
+    width: auto;
 }
+/* --- REGRAS DE EXPANSÃO (APENAS PINNED) --- */
+.sidebar.pinned {
+    width: 260px;
+    min-width: 260px;
+}
+
+    .sidebar.pinned .brand-text {
+        opacity: 1;
+    }
+
+    .sidebar.pinned .menu-item,
+    .sidebar.pinned .submenu-item {
+        justify-content: flex-start;
+        gap: 12px;
+    }
+
+    .sidebar.pinned .menu-label {
+        opacity: 1;
+        max-width: 160px;
+    }
+
+    .sidebar.pinned .menu-arrow {
+        opacity: 1;
+        max-width: 24px;
+        margin-left: auto;
+    }
+
+    .sidebar.pinned .submenu {
+        padding-left: 0;
+    }
 
 .brand-icon {
   width: 44px;
@@ -192,24 +235,9 @@ button:disabled {
   transition: opacity 0.15s ease;
 }
 
-.sidebar:hover .brand-text {
-  opacity: 1;
-}
-
-.sidebar-brand strong {
-  color: #ffffff;
-  font-size: 20px;
-}
-
 .brand-text span {
   color: #94a3b8;
   font-size: 14px;
-}
-
-.sidebar-menu {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
 }
 
 .menu-item,
@@ -237,12 +265,6 @@ button:disabled {
 .menu-item.active {
   background: #2563eb;
   color: #ffffff;
-}
-
-.sidebar:hover .menu-item,
-.sidebar:hover .submenu-item {
-  justify-content: flex-start;
-  gap: 12px;
 }
 
 .menu-icon {
@@ -303,29 +325,14 @@ button:disabled {
   transition: opacity 0.15s ease, max-width 0.2s ease;
 }
 
-.sidebar:hover .menu-label {
-  opacity: 1;
-  max-width: 160px;
-}
-
 .menu-arrow {
   margin-left: 0;
-}
-
-.sidebar:hover .menu-arrow {
-  opacity: 1;
-  max-width: 24px;
-  margin-left: auto;
 }
 
 .submenu {
   display: flex;
   flex-direction: column;
   gap: 6px;
-  padding-left: 0;
-}
-
-.sidebar:hover .submenu {
   padding-left: 0;
 }
 
@@ -649,18 +656,6 @@ button:disabled {
 @media (max-width: 720px) {
   .dashboard-layout {
     flex-direction: column;
-  }
-
-  .sidebar {
-    width: 100%;
-    min-width: 100%;
-    border-right: 0;
-    border-bottom: 1px solid #dbe3ef;
-  }
-
-  .sidebar:hover {
-    width: 100%;
-    min-width: 100%;
   }
 
   .brand-text,

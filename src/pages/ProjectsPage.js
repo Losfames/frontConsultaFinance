@@ -29,11 +29,16 @@ function ProjectsPage({ user }) {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
 
-  useEffect(() => {
+useEffect(() => {
     async function loadProjects() {
-      const projectsFromService = await getProjects(user.id);
-      setProjects(projectsFromService);
-      setIsLoading(false);
+      try {
+        const projectsFromService = await getProjects(user.id);
+        setProjects(projectsFromService);
+      } catch (err) {
+        setError('Erro de conexão com o servidor. Verifique se a API está rodando.');
+      } finally {
+        setIsLoading(false);
+      }
     }
 
     loadProjects();
@@ -117,7 +122,14 @@ function ProjectsPage({ user }) {
     event.preventDefault();
     setError('');
 
-    const updatedProject = await addExpense(openedProjectId, expenseForm);
+    // Cria o pacote completo com os dados digitados + o ID do projeto atual
+    const expenseDataToSend = {
+      ...expenseForm,
+      projetoId: openedProjectId 
+    };
+
+    // Manda o pacote completo!
+    const updatedProject = await addExpense(expenseDataToSend);
 
     setProjects((currentProjects) =>
       currentProjects.map((project) =>

@@ -1,66 +1,51 @@
-import { mockUsers } from '../mocks/users';
+// src/services/authService.js
+import api from './api';
 
-// Esta funcao simula o endpoint de login do backend.
-// Quando o C# estiver pronto, e aqui que voce pode trocar por fetch/axios.
+// Função para fazer Login real
 export async function login({ email, password }) {
-  // Simula um pequeno tempo de resposta, como se fosse uma chamada para servidor.
-  await fakeDelay(400);
+    try {
+        // Faz o POST para a rota /api/Auth/login do seu C#
+        const response = await api.post('/Auth/login', {
+            email: email,
+            senha: password // Atributo mapeado igual ao LoginDTO do seu back-end
+        });
 
-  // Procura um usuario que tenha o mesmo e-mail e a mesma senha digitados.
-  const user = mockUsers.find(
-    (mockUser) => mockUser.email === email && mockUser.password === password
-  );
+        // Se a API devolveu o token, salvamos no navegador
+        if (response.data && response.data.token) {
+            localStorage.setItem('consultaFinance:token', response.data.token);
 
-  if (!user) {
-    // throw interrompe a funcao e manda o erro para o catch do LoginPage.
-    throw new Error('E-mail ou senha invalidos.');
-  }
+            // Criamos um objeto de usuário mockado a partir do email para o React não quebrar nas telas
+            const user = {
+                id: 1, // O back-end pode estender isso se necessário
+                name: email.split('@')[0], // Pega a primeira parte do e-mail como nome
+                email: email
+            };
 
-  // Retornamos no mesmo estilo que uma API real costuma retornar: token + dados do usuario.
-  return {
-    token: 'token-falso-para-testes',
-    user: {
-      id: user.id,
-      name: user.name,
-      email: user.email,
-    },
-  };
+            return { user };
+        }
+
+        throw new Error('Falha na autenticação.');
+    } catch (error) {
+        // Captura as mensagens de erro vindas diretamente do C# (ex: "Email ou senha inválidos.")
+        const message = error.response?.data || 'Erro ao conectar com o servidor.';
+        throw new Error(message);
+    }
 }
 
-// Esta funcao simula o endpoint de cadastro do backend.
+// Função para Registrar conta real
 export async function register({ name, email, password }) {
-  await fakeDelay(400);
+    try {
+        // Faz o POST para a rota /api/Auth/register do seu C#
+        await api.post('/Auth/register', {
+            nome: name,
+            email: email,
+            senha: password
+        });
 
-  const userAlreadyExists = mockUsers.some((mockUser) => mockUser.email === email);
-
-  if (userAlreadyExists) {
-    throw new Error('Ja existe um usuario com este e-mail.');
-  }
-
-  const newUser = {
-    id: mockUsers.length + 1,
-    name,
-    email,
-    password,
-  };
-
-  // Como estamos usando mock, adicionamos o usuario na lista em memoria.
-  // Se atualizar a pagina, esse cadastro some. Com backend real, iria para o banco.
-  mockUsers.push(newUser);
-
-  return {
-    token: 'token-falso-para-testes',
-    user: {
-      id: newUser.id,
-      name: newUser.name,
-      email: newUser.email,
-    },
-  };
-}
-
-function fakeDelay(ms) {
-  // Promise permite usar await na funcao login.
-  return new Promise((resolve) => {
-    setTimeout(resolve, ms);
-  });
+        // Após registrar com sucesso, faz o login automático
+        return await login({ email, password });
+    } catch (error) {
+        const message = error.response?.data || 'Erro ao criar conta.';
+        throw new Error(message);
+    }
 }
