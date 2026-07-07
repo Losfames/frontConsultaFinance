@@ -1,5 +1,5 @@
 // src/pages/DespesasPage.js
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { getProjects, addExpense } from '../services/projectService'; // <-- Importa a funcao de salvar
 
 function DespesasPage({ user }) {
@@ -14,16 +14,16 @@ function DespesasPage({ user }) {
         amount: ''
     });
 
-    async function loadData() {
-        try {
-            const data = await getProjects(user.id);
-            setProjects(data);
-        } catch (err) {
-            console.error(err);
-        } finally {
-            setLoading(false);
-        }
+    const loadData = useCallback(async () => {
+    try {
+        const data = await getProjects(user.id);
+        setProjects(data);
+    } catch (err) {
+        console.error(err);
+    } finally {
+        setLoading(false);
     }
+}, [user.id]);
 
     useEffect(() => {
     loadData();
