@@ -1,4 +1,4 @@
-﻿// src/pages/DespesasPage.js
+// src/pages/DespesasPage.js
 import { useState, useEffect } from 'react';
 import { getProjects, addExpense } from '../services/projectService'; // <-- Importa a funcao de salvar
 
@@ -26,15 +26,18 @@ function DespesasPage({ user }) {
     }
 
     useEffect(() => {
-        loadData();
-    }, [user.id]);
+    loadData();
+}, [loadData]);
 
     // Garante que a caixinha comece selecionada no primeiro projeto da lista
     useEffect(() => {
-        if (projects.length > 0 && !formData.projetoId) {
-            setFormData(prev => ({ ...prev, projetoId: projects[0].id }));
-        }
-    }, [projects]);
+    if (projects.length > 0 && !formData.projetoId) {
+        setFormData(prev => ({
+            ...prev,
+            projetoId: projects[0].id
+        }));
+    }
+}, [projects, formData.projetoId]);
 
     // Atualiza o estado do React em tempo real enquanto voce digita
     function handleInputChange(event) {

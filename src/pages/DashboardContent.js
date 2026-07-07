@@ -1,4 +1,4 @@
-﻿// src/pages/DashboardContent.js
+// src/pages/DashboardContent.js
 import { useState, useEffect } from 'react';
 import { getProjects } from '../services/projectService';
 
