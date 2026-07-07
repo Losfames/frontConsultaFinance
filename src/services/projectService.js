@@ -96,3 +96,32 @@ export async function addExpense(expenseData) {
     const todosOsProjetos = await getProjects();
     return todosOsProjetos.find((p) => p.id === expenseData.projetoId);
 }
+
+
+export async function exportarExcel() {
+    const response = await api.get(
+        "/Relatorio/ExportarExcel",
+        {
+            responseType: "blob"
+        }
+    );
+
+    const url = window.URL.createObjectURL(
+        new Blob([response.data])
+    );
+
+    const link = document.createElement("a");
+
+    link.href = url;
+
+    link.setAttribute(
+        "download",
+        "RelatorioFinanceiro.xlsx"
+    );
+
+    document.body.appendChild(link);
+
+    link.click();
+
+    link.remove();
+}

@@ -1,6 +1,6 @@
 // src/pages/DashboardContent.js
 import { useState, useEffect } from 'react';
-import { getProjects } from '../services/projectService';
+import { getProjects, exportarExcel } from '../services/projectService';
 
 function DashboardContent({ user }) {
     const [stats, setStats] = useState({ orçado: 0, realizado: 0, saldo: 0, totalProjetos: 0 });
@@ -33,8 +33,8 @@ function DashboardContent({ user }) {
                     <p className="section-label">Resumo Financeiro</p>
                     <h1>Dashboard</h1>
                 </div>
-                <button className="link-button" onClick={() => window.print()}>
-                    <i className="fa-solid fa-print"></i> Gerar Relatório PDF
+                <button className="link-button" onClick={exportarExcel}>
+                <i className="fa-solid fa-file-excel"></i> Exportar Excel
                 </button>
             </header>
 
